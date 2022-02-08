@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <style>
+        article {
+            border: 2px solid orange;
+            border-radius: 10px;
+        }
+
+        img {
+            width: 100%;
+            border-radius: 9px;
+        }
+
+        .info {
+            padding: 0 1rem;
+        }
+    </style>
+    <h1>Info</h1>
+    <button>Tilbage</button>
+    <article>
+        <img src="" alt="" />
+        <div class="info">
+            <h2></h2>
+            <p class="email"></p>
+            <p class="hobby"></p>
+            <p class="birthday"></p>
+        </div>
+    </article>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get("id");
+
+        const url = "https://persongalleri-5d3e.restdb.io/rest/persongalleri";
+        let person;
+        const options = {
+            headers: {
+                "x-apikey": "600fe9211346a1524ff12e31",
+            },
+        };
+
+        console.log("id", id);
+        document.addEventListener("DOMContentLoaded", hentData);
+
+        async function hentData() {
+            const respons = await fetch(`https://persongalleri-5d3e.restdb.io/rest/persongalleri/${id}`, options);
+            person = await respons.json();
+            console.log("Personer", person)
+            visPerson(person);
+        }
+
+        function visPerson() {
+            document.querySelector("img").src = `faces/${person.billede}`;
+            document.querySelector(
+                "h2"
+            ).textContent = `${person.fornavn} ${person.efternavn}`;
+            document.querySelector(".email").textContent = `Email: ${person.email}`;
+            document.querySelector(".hobby").textContent = `Hobby: ${person.hobby}`;
+            let formatDate = new Date(person.fødselsdag).toDateString();
+            let birthday = (document.querySelector(
+                ".birthday"
+            ).textContent = `Birthday: ${formatDate}`);
+        }
+
+        document.querySelector("button").addEventListener("click", () => { history.back() });
+    </script>
+</body>
+
+</html>
