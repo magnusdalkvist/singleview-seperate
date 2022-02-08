@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+</head>
+
+<body>
+  <style>
+    #popup {
+      display: none;
+      position: fixed;
+      inset: 0 0 0 0;
+      background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    #popup article {
+      width: 80%;
+      max-height: 80%;
+      display: flex;
+      flex-direction: column;
+      margin: 4rem auto;
+      padding: 1rem;
+      background-color: white;
+      overflow-y: scroll;
+    }
+
+    #luk {
+      position: fixed;
+      padding: 1rem;
+      font-size: 1.7rem;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+
+    article {
+      border: 2px solid orange;
+      border-radius: 10px;
+    }
+
+    img {
+      width: 100%;
+      border-radius: 9px;
+    }
+
+    .info {
+      padding: 0 1rem;
+    }
+
+    .valgt {
+      background-color: lightblue;
+    }
+  </style>
+  <section id="popup">
+    <div id="luk">&#x2715</div>
+    <article>
+      <img src="" alt="" />
+      <div class="info">
+        <h2></h2>
+        <p class="email"></p>
+        <p class="hobby"></p>
+        <p class="birthday"></p>
+      </div>
+    </article>
+  </section>
+  <h1 class="overskrift">Alle</h1>
+  <button data-troende="alle" class="valgt">Alle</button>
+  <button data-troende="ja">Troende</button>
+  <button data-troende="nej">Ikke troende</button>
+  <button data-troende="tvivler">Tvivler</button>
+  <section class="container"></section>
+  <template>
+    <article>
+      <img src="" alt="" />
+      <div class="info">
+        <h2></h2>
+        <p class="email"></p>
+        <p class="hobby"></p>
+        <p class="birthday"></p>
+      </div>
+    </article>
+  </template>
+  <script>
+    const url = "https://persongalleri-5d3e.restdb.io/rest/persongalleri";
+
+    const options = {
+      headers: {
+        "x-apikey": "600fe9211346a1524ff12e31",
+      },
+    };
+
+    let personer;
+    let filter = "alle";
+    const header = document.querySelector(".overskrift");
+
+    const filterKnapper = document.querySelectorAll("button");
+    filterKnapper.forEach(knap => knap.addEventListener("click", filtrerPersoner));
+
+    function filtrerPersoner() {
+      filter = this.dataset.troende;
+      document.querySelector(".valgt").classList.remove("valgt");
+      this.classList.add("valgt");
+      visPersoner();
+      header.textContent = this.textContent;
+    }
+
+    async function hentData() {
+      const respons = await fetch(url, options);
+      personer = await respons.json();
+      console.log("Personer", personer)
+      visPersoner();
+    }
+
+    hentData();
+
+    function visPersoner() {
+      let container = document.querySelector(".container");
+      let temp = document.querySelector("template");
+      container.textContent = "";
+
+      personer.forEach((person) => {
+        if (filter == person.troende || filter == "alle") {
+          const klon = temp.cloneNode(true).content;
+          klon.querySelector("img").src = `faces/${person.billede}`;
+          klon.querySelector(
+            "h2"
+          ).textContent = `${person.fornavn} ${person.efternavn}`;
+          klon.querySelector(".email").textContent = `Email: ${person.email}`;
+          klon.querySelector(".hobby").textContent = `Hobby: ${person.hobby}`;
+          let formatDate = new Date(person.fødselsdag).toDateString();
+          let birthday = (klon.querySelector(
+            ".birthday"
+          ).textContent = `Birthday: ${formatDate}`);
+          klon.querySelector("article").addEventListener("click", () => visDetaljer(person));
+          container.appendChild(klon);
+        }
+      });
+    }
+
+    popup = document.querySelector("#popup");
+    document.querySelector("#luk").addEventListener("click", () => popup.style.display = "none");
+
+    function visDetaljer(person) {
+      console.log("person", person);
+      popup.style.display = "block";
+      popup.querySelector("img").src = `faces/${person.billede}`;
+      popup.querySelector(
+        "h2"
+      ).textContent = `${person.fornavn} ${person.efternavn}`;
+      popup.querySelector(".email").textContent = `Email: ${person.email}`;
+      popup.querySelector(".hobby").textContent = `Hobby: ${person.hobby}`;
+      let formatDate = new Date(person.fødselsdag).toDateString();
+      let birthday = (popup.querySelector(
+        ".birthday"
+      ).textContent = `Birthday: ${formatDate}`);
+    }
+  </script>
+</body>
+
+</html>
